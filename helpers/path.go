@@ -36,20 +36,21 @@ func MakePath(s string) string {
 	return UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
 }
 
-// MakePathToLowerr creates a Unicode santized string, with the spaces replaced,
+// MakePathToLower creates a Unicode santized string, with the spaces replaced,
 // and transformed to lower case.
 // E.g. Social Media -> social-media
 func MakePathToLower(s string) string {
-        return UnicodeSanitize(strings.ToLower(strings.Replace(strings.TrimSpace(s), " ", "-", -1)))
+	return strings.ToLower(MakePath(s))
 }
 
 func MakeTitle(inpath string) string {
 	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
 }
 
-func Sanitize(s string) string {
-	return sanitizeRegexp.ReplaceAllString(s, "")
-}
+// unused
+//func Sanitize(s string) string {
+//	return sanitizeRegexp.ReplaceAllString(s, "")
+//}
 
 func UnicodeSanitize(s string) string {
 	source := []rune(s)
@@ -99,11 +100,14 @@ func IsEmpty(path string) (bool, error) {
 	}
 	if fi.IsDir() {
 		f, err := os.Open(path)
+		// FIX: Resource leak - f.close() should be called here by defer or is missed
+		// if the err != nil branch is taken.
+		defer f.Close()
 		if err != nil {
 			return false, err
 		}
 		list, err := f.Readdir(-1)
-		f.Close()
+		// f.Close() - see bug fix above
 		return len(list) == 0, nil
 	} else {
 		return fi.Size() == 0, nil
