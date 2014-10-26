@@ -419,21 +419,23 @@ func TestGuessSection(t *testing.T) {
 	}
 
 	data := []test{
-		{"/", ""},
 		{"", ""},
+		{"/", ""},
 		{"/content", ""},
 		{"content/", ""},
-		{"/content/", "content"},
-		{"/blog", ""},
-		{"/blog/", "blog"},
-		{"blog", ""},
+		{"/content/", ""},
+		{"/blog", "blog"},
+		{"/blogs/", "blogs"},
+		{"bloging", ""},
 		{"content/blog", ""},
 		{"/content/blog/", "blog"},
-		{"/content/blog", "blog"},
+		{"/content/blogs", "blogs"},
 		{"content/blog/", ""},
 		{"/contents/myblog/", "contents"},
 		{"/contents/yourblog", "contents"},
 		{"/contents/ourblog/", "contents"},
+		{"//content", ""},
+		{"////", ""},
 	}
 
 	for i, d := range data {

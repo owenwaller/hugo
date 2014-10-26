@@ -174,16 +174,51 @@ func FileAndExt(in string) (name string, ext string) {
 	return
 }
 
+// Intended behaviour - see: http://discuss.gohugo.io/t/hugolib-helpers-first-stab-at-extra-tests/58/3
+// The path has to start with a "/" and a section is the first part of the
+// path. If the string "content" appears as a path element it is chopped.
+// If "content" appears it has to be the first non-empty string
+// A section can't have a "/" anywhere within it.
+// Which implies that the section is always the bit between the first
+// two "/"'s, after "content" has been removed.
+// We either return the section name or an empty string if it does
+// not meet the above
 func GuessSection(in string) string {
 	x := strings.Split(in, "/")
-	x = x[:len(x)-1]
-	if len(x) == 0 {
+	length := len(x)
+	startpos := 0
+	// iterate through X and drop any leading ""'s
+	for i := 0; i < length; i++ {
+		if x[i] == "" {
+			startpos++
+		} else {
+			break
+		}
+	}
+	//fmt.Printf("length:%d, startpos:%d, x:%#v\n", length, startpos, x)
+	if startpos == length {
+		return "" // x only contains a series of empty strings
+	}
+	if startpos < 1 {
+		// not an absolute path case. We should have seen at least
+		// one empty string after the split call.
 		return ""
 	}
-	if x[0] == "content" {
-		x = x[1:]
+	// our (possible) section name starts at startpos
+	section := x[startpos]
+	// filter out the "content" string
+	if section == "content" {
+		// go "content" so we must have another element after this one
+		if length > startpos+1 {
+			return x[startpos+1] // "/content/blogs/" case - returns "blogs"
+		} else {
+			// otherwise "content" is the only string in the array
+			return "" // returns "" in the "/content" case
+		}
+	} else {
+		// return "blog" in the "/blog" case
+		return x[startpos]
 	}
-	return path.Join(x...)
 }
 
 func PathPrep(ugly bool, in string) string {
