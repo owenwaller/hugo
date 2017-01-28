@@ -1360,6 +1360,17 @@ func highlight(in interface{}, lang, opts string) (template.HTML, error) {
 	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang, opts)), nil
 }
 
+// hiight returns an HTML string with syntax highlighting applied. Alternative
+func hilight(in interface{}, lexer, style, lineNumbers string) (template.HTML, error) {
+	str, err := cast.ToStringE(in)
+
+	if err != nil {
+		return "", err
+	}
+
+	return template.HTML(helpers.Hilight(html.UnescapeString(str), lexer, style, lineNumbers)), nil
+}
+
 var markdownTrimPrefix = []byte("<p>")
 var markdownTrimSuffix = []byte("</p>\n")
 
@@ -2136,6 +2147,7 @@ func (tf *templateFuncster) initFuncMap() {
 		"gt":            gt,
 		"hasPrefix":     hasPrefix,
 		"highlight":     highlight,
+		"hilight":       hilight,
 		"htmlEscape":    htmlEscape,
 		"htmlUnescape":  htmlUnescape,
 		"humanize":      humanize,
